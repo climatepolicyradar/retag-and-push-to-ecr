@@ -19,22 +19,10 @@ runs:
   steps:
     - uses: actions/checkout@v4
 
-    - name: print env
-      shell: bash
-      run: |
-        if [[ -n ${DOCKER_REGISTRY} ]]; then
-          echo "Docker registry is set"
-        else
-          echo "Docker registry is not set"
-        fi
-
     - name: Docker pull, retag and push branch
       shell: sh
       if: ${{ inputs.new-version == '' }}
       run: |
-        echo ${{ inputs.semver-tag }}
-        echo ${{ inputs.repo-name }}
-        echo ${{ inputs.repo-name }}:${{ inputs.semver-tag }}
         docker pull ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest
         docker tag ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest  "${{ inputs.repo-name }}:${{ inputs.semver-tag }}"
         "${{ github.action_path }}/retag-and-push.sh" "${{ inputs.repo-name }}" "${{ inputs.semver-tag }}"
@@ -45,9 +33,6 @@ runs:
       env:
         NEW_TAG: ${{ inputs.new-version }}
       run: |
-        echo ${{ inputs.semver-tag }}
-        echo ${{ inputs.repo-name }}
-        echo ${{ inputs.repo-name }}:${{ inputs.semver-tag }}
         docker pull ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest
         docker tag ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest  "${{ inputs.repo-name }}:${{ inputs.semver-tag }}"
         "${{ github.action_path }}/retag-and-push.sh" "${{ inputs.repo-name }}" "${{ inputs.semver-tag }}"
