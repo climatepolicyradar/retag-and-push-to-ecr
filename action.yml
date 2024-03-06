@@ -20,7 +20,7 @@ runs:
     - uses: actions/checkout@v4
 
     - name: Docker pull, retag and push branch
-      shell: sh
+      shell: bash
       if: ${{ inputs.new-version == '' }}
       run: |
         docker pull ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest
