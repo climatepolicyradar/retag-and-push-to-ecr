@@ -1,0 +1,82 @@
+name: Semver Tagging
+
+on:
+  workflow_call:
+    inputs:
+      repo-name:
+        required: true
+        type: string
+      semver-tag:
+        required: true
+        type: string
+      new-version:
+        required: false
+        type: string
+
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      DOCKER_REGISTRY:
+        required: true
+
+jobs:
+  semver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Debug
+        run: |
+          echo ${{ github.event_name }}
+          echo ${{ github.ref }}
+          echo ${{ github.event.pull_request.head.ref }}
+          echo ${{ github.event.pull_request.base.ref }}
+          echo ${{ github.event }}
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Docker pull, retag and push branch
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          docker pull ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:${{ inputs.semver-tag }}
+          docker tag ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:${{ inputs.semver-tag }}  ${{ inputs.repo-name }}:${{ inputs.semver-tag }}
+          .github/retag-and-push.sh ${{ inputs.repo-name }} ${{ inputs.semver-tag }}
+
+      - name: Docker pull, retag and push tag
+        if: "${{ inputs.new-version != '' }}"
+        env:
+          NEW_TAG: ${{ inputs.new-version }}
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          docker pull ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:${{ inputs.semver-tag }}
+          docker tag ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:${{ inputs.semver-tag }}  ${{ inputs.repo-name }}:${{ inputs.semver-tag }}
+          .github/retag-and-push.sh ${{ inputs.repo-name }} ${{ inputs.semver-tag }}

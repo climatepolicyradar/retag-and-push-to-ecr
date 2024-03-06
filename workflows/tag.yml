@@ -1,0 +1,43 @@
+name: Auto Git & Semver Tagging
+
+on:
+  workflow_call:
+    inputs:
+      repo-name:
+        required: true
+        type: string
+      semver-tag:
+        required: true
+        type: string
+
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      DOCKER_REGISTRY:
+        required: true
+
+jobs:
+  git:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fregante/setup-git-user@v2
+
+      - name: Determine new tag version
+        id: determine_next_tag
+        uses: climatepolicyradar/get-next-tag-from-pr-body@main
+
+      - name: Echo next tag
+        run: echo ${{ steps.determine_next_tag.outputs.new_tag }}
+
+  semver:
+    needs: git
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/semver.yml@main
+    secrets: inherit
+    with:
+      repo-name: ${{ inputs.repo-name }}
+      semver-tag: ${{ inputs.semver-tag }}
