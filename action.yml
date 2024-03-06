@@ -40,11 +40,14 @@ runs:
         "${{ github.action_path }}/retag-and-push.sh" "${{ inputs.repo-name }}" "${{ inputs.semver-tag }}"
 
     - name: Docker pull, retag and push tag
-      shell: sh
+      shell: bash
       if: "${{ inputs.new-version != '' }}"
       env:
         NEW_TAG: ${{ inputs.new-version }}
       run: |
+        echo ${{ inputs.semver-tag }}
+        echo ${{ inputs.repo-name }}
+        echo ${{ inputs.repo-name }}:${{ inputs.semver-tag }}
         docker pull ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest
         docker tag ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest  "${{ inputs.repo-name }}:${{ inputs.semver-tag }}"
         "${{ github.action_path }}/retag-and-push.sh" "${{ inputs.repo-name }}" "${{ inputs.semver-tag }}"
