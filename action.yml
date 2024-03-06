@@ -21,7 +21,7 @@ runs:
 
     - name: Docker pull, retag and push branch
       shell: sh
-
+      if: ${{ inputs.new-version == '' }}
       run: |
         docker pull ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest
         docker tag ${DOCKER_REGISTRY}/${{ inputs.repo-name }}:latest  ${{ inputs.repo-name }}:${{ inputs.semver-tag }}
