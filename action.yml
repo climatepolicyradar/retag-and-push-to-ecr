@@ -19,6 +19,15 @@ runs:
   steps:
     - uses: actions/checkout@v4
 
+    - name: print env
+      shell: bash
+      run: |
+        if [[ -n ${DOCKER_REGISTRY} ]]; then
+          echo "Docker registry is set"
+        else
+          echo "Docker registry is not set"
+        fi
+
     - name: Docker pull, retag and push branch
       shell: sh
       if: ${{ inputs.new-version == '' }}
