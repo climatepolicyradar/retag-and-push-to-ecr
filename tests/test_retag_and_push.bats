@@ -28,6 +28,18 @@ load '/opt/bats-test-helpers/lox-bats-mock/stub.bash'
   [ "$status" -eq 0 ]
 }
 
+@test "is_tagged_version succeeds for multiple digit version" {
+  source /code/funcs.sh
+  run is_tagged_version "refs/tags/v10.100.1000-alpha"
+  [ "$status" -eq 0 ]
+}
+
+@test "is_tagged_version fails when trailing 0 version " {
+  source /code/funcs.sh
+  run is_tagged_version "refs/tags/v010.011.012-alpha"
+  [ "$status" -eq 1 ]
+}
+
 @test "is_tagged_version fails for missing patch " {
   source /code/funcs.sh
   run is_tagged_version "refs/tags/v0.1-alpha"
@@ -37,6 +49,38 @@ load '/opt/bats-test-helpers/lox-bats-mock/stub.bash'
 @test "is_tagged_version fails for other tags " {
   source /code/funcs.sh
   run is_tagged_version "refs/tags/vimto"
+  [ "$status" -eq 1 ]
+}
+
+# ------
+
+@test "is_valid_tag_name succeeds for typical version" {
+  source /code/funcs.sh
+  run is_valid_tag_name "v0.1.2-alpha"
+  [ "$status" -eq 0 ]
+}
+
+@test "is_valid_tag_name succeeds for multiple digit version" {
+  source /code/funcs.sh
+  run is_valid_tag_name "v10.100.1000-alpha"
+  [ "$status" -eq 0 ]
+}
+
+@test "is_valid_tag_name fails when trailing 0 version " {
+  source /code/funcs.sh
+  run is_valid_tag_name "v010.011.012-alpha"
+  [ "$status" -eq 1 ]
+}
+
+@test "is_valid_tag_name fails for missing patch " {
+  source /code/funcs.sh
+  run is_valid_tag_name "v0.1-alpha"
+  [ "$status" -eq 1 ]
+}
+
+@test "is_valid_tag_name fails for other tags " {
+  source /code/funcs.sh
+  run is_valid_tag_name "lemonade"
   [ "$status" -eq 1 ]
 }
 
@@ -142,4 +186,3 @@ load '/opt/bats-test-helpers/lox-bats-mock/stub.bash'
   [ "${tag_array[1]}" == "test:8.9" ]
   [ "${tag_array[2]}" == "test:8" ]
 }
-
