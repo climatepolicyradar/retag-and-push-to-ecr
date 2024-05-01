@@ -36,7 +36,7 @@ get_maturity() {
 
 # Docker funcs.
 is_tagged_version() {
-	if [[ $1 =~ refs/tags/v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*) ]]; then
+	if [[ $1 =~ refs/tags/v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*) ]]; then
 		return 0
 	else
 		return 1
@@ -74,7 +74,7 @@ get_docker_tags() {
 
 # Auto-tag funcs.
 is_valid_tag_name() {
-	if [[ $1 =~ v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*) ]]; then
+	if [[ $1 =~ v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*) ]]; then
 		return 0
 	else
 		return 1
