@@ -21,7 +21,7 @@ project="$1"
 image_tag="$2"
 
 docker_tag() {
-    echo "Re-tagging $1 -> $2"
+    echo "Tagging $1 as $2"
     docker tag $1 $2
 }
 
@@ -40,6 +40,7 @@ name=$(clean_string "${DOCKER_REGISTRY}/${project}")
 input_image="${project}:${image_tag}"
 
 if [[ -n "${NEW_TAG}" ]]; then
+    echo "NEW_TAG variable provided..."
     if is_valid_tag_name ${NEW_TAG} ; then
         # push `semver` tagged image
         semver="${NEW_TAG/v/}"
