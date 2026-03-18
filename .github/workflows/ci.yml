@@ -16,3 +16,14 @@ jobs:
 
       - name: Test bash scripts
         run: make test_bashscripts
+
+  dependabot:
+    name: Dependabot Auto-pilot
+    if: github.event_name == 'pull_request'
+    needs: [test]
+    permissions:
+      pull-requests: write
+      contents: write
+    uses: climatepolicyradar/reusable-workflows/.github/workflows/dependabot-autopilot.yml@v23
+    with:
+      auto-approve: false
